@@ -1,0 +1,17 @@
+build
+Builds
+_build
+build_www
+JuceGenerated
+*~
+*.sw?
+*.DS_Store
+*/*/*.DS_Store
+
+*.pdb
+*pdb.meta
+*.ilk
+*.ilk.meta
+*.VC.db
+
+*.opendb
