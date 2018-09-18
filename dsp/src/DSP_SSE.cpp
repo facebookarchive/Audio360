@@ -16,94 +16,56 @@
 #include <intrin.h>
 #endif
 
-namespace TBE
-{
-   template <> struct RegOps<__m128>
-   {
-      static size_t width()
-      {
-         return 4;
-      }
+namespace TBE {
+template <>
+struct RegOps<__m128> {
+  static size_t width() {
+    return 4;
+  }
 
-      static __m128 zero()
-      {
-         return _mm_setzero_ps();
-      }
+  static __m128 zero() {
+    return _mm_setzero_ps();
+  }
 
-      static __m128 mul(__m128 &a, __m128 &b)
-      {
-         return _mm_mul_ps(a, b);
-      }
+  static __m128 mul(__m128& a, __m128& b) {
+    return _mm_mul_ps(a, b);
+  }
 
-      static __m128 mul(__m128 &v, float &scalar)
-      {
-         auto s = set(scalar);
-         return mul(v, s);
-      }
+  static __m128 mul(__m128& v, float& scalar) {
+    auto s = set(scalar);
+    return mul(v, s);
+  }
 
-      static __m128 add(__m128 &a, __m128 &b)
-      {
-         return _mm_add_ps(a, b);
-      }
+  static __m128 add(__m128& a, __m128& b) {
+    return _mm_add_ps(a, b);
+  }
 
-      static __m128 set(float &val)
-      {
-         return _mm_set1_ps(val);
-      }
+  static __m128 set(float& val) {
+    return _mm_set1_ps(val);
+  }
 
-      static __m128 mulAcc(__m128 &acc, __m128 &a, __m128 &b)
-      {
-         return _mm_add_ps(acc, _mm_mul_ps(a, b));
-      }
+  static __m128 mulAcc(__m128& acc, __m128& a, __m128& b) {
+    return _mm_add_ps(acc, _mm_mul_ps(a, b));
+  }
 
-      static __m128 loadU(const float *buffer)
-      {
-         return _mm_loadu_ps(buffer);
-      }
+  static __m128 loadU(const float* buffer) {
+    return _mm_loadu_ps(buffer);
+  }
 
-      static void storeU(float *buffer, __m128 &a)
-      {
-         _mm_storeu_ps(buffer, a);
-      }
-   };
+  static void storeU(float* buffer, __m128& a) {
+    _mm_storeu_ps(buffer, a);
+  }
+};
 
-   //-----------------------------------
+//-----------------------------------
+void dspInitSSE(FBDSP* d) {
+  Internal::dspInit<__m128>(d);
+}
 
-#ifndef TBE_DISABLE_AVX
-   extern void dspInitAVX(FBDSP *d);
-#endif
-
-   void dspInitSSE(FBDSP *d)
-   {
-      Internal::dspInit<__m128>(d);
-   }
-
-   FBDSP::FBDSP()
-   {
-#ifndef TBE_DISABLE_AVX
-      (CPU::avxAvailable()) ? dspInitAVX(this) : dspInitSSE(this);
-#else
-      dspInitSSE(this);
-#endif
-   }
-
-   //-----------------------------------
-
-   void FIR::process(const float *input, float *output, size_t numSamples)
-   {
-#ifndef TBE_DISABLE_AVX
-      if (avxAvailable_)
-      {
-         processAVX(input, output, numSamples);
-      }
-      else
-      {
-#endif // TBE_DISABLE_AVX
-         process<__m128>(input, output, numSamples);
-#ifndef TBE_DISABLE_AVX
-      }
-#endif // TBE_DISABLE_AVX
-   }
+//-----------------------------------
+void FIR::processSSE(const float* input, float* output, size_t numSamples) {
+  process<__m128>(input, output, numSamples);
+}
 } // namespace TBE
 
 #endif // __ARM_NEON

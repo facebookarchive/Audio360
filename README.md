@@ -108,6 +108,8 @@ It is not possible to achieve all binaural cues effectively at lower Ambisonic o
 
 Spherical harmonics exhibit useful symmetry properties which can be utilised to provide both left and right ear binaural signals. Each harmonic function can be seen as being either mathematically even or odd across the median plane (between left and right hemispheres). When the harmonic is even there is no difference between processing for the left and right ears, when the harmonic is odd the right ear signal is composed with an extra multiply by -1 to get the correct binaural signal output. For this reason, only one set of coefficients is needed to provide rendering information for both left and right ears.
 
+We have provided coefficients for 44.1 kHz and 48 kHz. This should suffice for many systems. For other sample rates we leave it up to the user to implement the DSP to downsample the input audio to one of the provided sample rates, run the audio through the renderer, and then upsample back up to the original sample rate.
+
 ## Contributing
 
 See the CONTRIBUTING file for how to help out.

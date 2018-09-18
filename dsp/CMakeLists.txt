@@ -7,7 +7,7 @@
 ## Project Info
 ##############################################################################
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required(VERSION 3.6)
 
 set(MODULE_NAME dsp)
 set(MODULE_TEST ${MODULE_NAME}-tests)
@@ -37,23 +37,12 @@ config_default_compiler_settings()
 
 
 ##############################################################################
-## Include folders
-##############################################################################
-
-set(INCLUDE_FOLDERS 
-  ${gtest_SOURCE_DIR}/include
-  ${gtest_SOURCE_DIR}
-  ${ROOT_SRC_DIR}
-  )
-
-include_directories(${INCLUDE_FOLDERS})
-
-##############################################################################
 ## Sources
 ##############################################################################
 
 set(DSP_SRC
   ${DSP_SRC_DIR}/DSP.hh
+  ${DSP_SRC_DIR}/DSP.cpp
   ${DSP_SRC_DIR}/AudioBufferList.hh
   ${DSP_SRC_DIR}/DSP_Neon.cpp
   ${DSP_SRC_DIR}/DSP_SSE.cpp
@@ -62,11 +51,6 @@ set(DSP_SRC
   ${DSP_SRC_DIR}/CpuFeatures.hh
   ${DSP_SRC_DIR}/Internal.hh
   )
-
-set(DSP_TESTS_SRC
-  ${CMAKE_CURRENT_LIST_DIR}/src/tests/test_dsp.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/src/tests/test_AudioBufferList.cpp
-)
 
 # The AVX flags need to be set for all x86/x86_64 targets including:
 # macOS, linux and iOS simulator
@@ -84,11 +68,16 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
   endif()
 endif()
 
-add_library(${MODULE_NAME}-object OBJECT ${DSP_SRC})
 add_library(${MODULE_NAME} ${DSP_SRC})
+target_include_directories(${MODULE_NAME} PUBLIC ${ROOT_SRC_DIR} ${DSP_SRC_DIR})
+add_library(${MODULE_NAME}-object OBJECT ${DSP_SRC})
+target_include_directories(${MODULE_NAME}-object PUBLIC ${ROOT_SRC_DIR} ${DSP_SRC_DIR})
 
 if (GTEST_ENABLED)
-  set(SRC_FILES ${DSP_TESTS_SRC})
+  set(SRC_FILES
+    src/tests/test_dsp.cpp
+    src/tests/test_AudioBufferList.cpp
+    )
   set(DEFS)
   set(LIBS ${MODULE_NAME})
   add_gtest_app(${MODULE_TEST} "${SRC_FILES}" "${DEFS}" "${LIBS}" "${ROOT_SRC_DIR}/cmake/")

@@ -7,7 +7,7 @@
 ## Project Info
 ##############################################################################
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required(VERSION 3.6)
 
 set(MODULE_NAME FBAudioRenderer)
 set(MODULE_TEST ${MODULE_NAME}-tests)
@@ -41,8 +41,10 @@ include_dsp(${ROOT_SRC_DIR})
 ##############################################################################
 
 set(RENDERER_SRC
-  ${RENDERER_SRC_DIR}/AmbiBinauralCoefficients.hh
-  ${RENDERER_SRC_DIR}/AmbiBinauralCoefficients.cpp
+  ${RENDERER_SRC_DIR}/AmbiBinauralCoefficients2OA.hh
+  ${RENDERER_SRC_DIR}/AmbiBinauralCoefficients2OA.cpp
+  ${RENDERER_SRC_DIR}/AmbiBinauralCoefficients3OA.hh
+  ${RENDERER_SRC_DIR}/AmbiBinauralCoefficients3OA.cpp
   ${RENDERER_SRC_DIR}/AmbiDefinitions.hh
   ${RENDERER_SRC_DIR}/AmbiSphericalConvolution.hh
   ${RENDERER_SRC_DIR}/AmbiSphericalConvolution.cpp
@@ -52,30 +54,22 @@ set(RENDERER_TESTS_SRC
   ${RENDERER_SRC_DIR}/tests/test_AmbiSphericalConvolution.cpp
 )
 
-set(INCLUDE_DIR 
-  ${gtest_SOURCE_DIR}/include
-  ${gtest_SOURCE_DIR}
-  ${ROOT_SRC_DIR}
-  )
-
 ##############################################################################
 ## Targets
 ##############################################################################
 
-add_library(${MODULE_NAME}-object OBJECT ${RENDERER_SRC})
-target_include_directories(${MODULE_NAME}-object PRIVATE ${INCLUDE_DIR})
-
 add_library(${MODULE_NAME} ${RENDERER_SRC})
-target_include_directories(${MODULE_NAME} PRIVATE ${INCLUDE_DIR})
+target_include_directories(${MODULE_NAME} PUBLIC ${ROOT_SRC_DIR})
+target_link_libraries(${MODULE_NAME} PUBLIC dsp)
 
-
-set(SRC_FILES ${RENDERER_TESTS_SRC})
-set(DEFS)
-set(LIBS dsp ${MODULE_NAME})
+add_library(${MODULE_NAME}-object OBJECT ${RENDERER_SRC})
+target_include_directories(${MODULE_NAME}-object PUBLIC ${ROOT_SRC_DIR})
 
 if (GTEST_ENABLED)
-  add_gtest_app(${MODULE_TEST} "${SRC_FILES}" "${DEFS}" "${LIBS}" "${ROOT_SRC_DIR}/cmake/")
-  target_include_directories(${MODULE_TEST} PRIVATE ${INCLUDE_DIR})
-endif()
+    set(SRC_FILES ${RENDERER_TESTS_SRC})
+    set(DEFS)
+    set(LIBS dsp ${MODULE_NAME})
 
-##############################################################################
+    add_gtest_app(${MODULE_TEST} "${SRC_FILES}" "${DEFS}" "${LIBS}" "${ROOT_SRC_DIR}/cmake/")
+    target_include_directories(${MODULE_TEST} PRIVATE ${ROOT_SRC_DIR})
+endif()
